@@ -1,0 +1,19 @@
+<canvas id='canvas'></canvas>
+
+<script src="main.js"></script>
+<script src='genetics.js'></script>
+	
+<script type="text/javascript">
+	
+	main.init();
+
+	console.log("Population Size: " + main.genetics.populationLength);
+
+	main.drawOnly = {
+		color: "red",
+		connections: main.genetics.getFittestIndividual(main.genetics.individuals).genome
+	};
+
+	main.renderConnections(main.canvas);
+
+</script>

@@ -1,0 +1,39 @@
+NOTE: Tournament selection population size is still equal to an 
+independent variable unbased by population size!!
+
+TODO:
+
+1. line 39 of genetics.js -- crossoverParents function.
+	swap unusedgene and uncommon gene at the end of the loop.
+
+	- uneeded
+
+2. Clean and document crossoverparents function -eh
+
+3. Check if generations get better over time.
+
+	DONE - 
+
+4. work on real create generation function
+
+	-done
+
+5. Work on rendering a set of connections
+
+	-done
+
+6. Work on rendering set(s) of connections
+
+7. Fix bug where duplication of genes happen
+	
+	a. create return info 
+
+	-has been fixed by rewriting!
+
+8. Remove return info code from todo 7
+	-done
+
+Center Connections
+Line Map
+
+Pulsar Connections

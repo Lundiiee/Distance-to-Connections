@@ -1,0 +1,190 @@
+11/13/16 -
+
+
+PROBLEM 1: individual genome length are unequal
+
+In crossoverParents function is not functioning correctly. It was first figured out when two calls to createGeneration() with multiple individuals would lead to unexpected results.
+
+Second generation has individuals with two genes instead of three, therefore have unequal genome lengths.
+
+Therefore, find out why new children have missing genes.
+
+_test() function simulates generations with dummy individuals. It loops with different creations of generations N times. The more generations, the more likely an individual will lose a gene.
+
+The bug resides in crossoverParents function. 
+
+11/15/16
+
+Still working on problem 1
+
+Crossover algorithm:
+
+1. If mutation probability is false and common genes array is not empty, push a random index from common genes and delete it.
+
+r = random
+useCommonGene boolean = r < mutationprob && commonArrayLength !== 0;
+
+child push commonGenes [randomIndex]
+commonGenes splice [randomIndex] for only 1 element
+
+
+2. This step is reached if commongenes array is empty or mutation probability is true, we go to uncommon genes array.
+
+3. if uncommongenes probability is true and uncommongenes array is not empty, push unusedgene [randomIndex]
+
+4. if step 3's condition is not met, push an unusedgene [randomIndex] if there is any
+
+5. if unusedgenes is empty, push a commongene [randomIndex]
+
+
+TODO: in crossover function, swap unusedgene and uncommon genes in the end of the loop
+
+Left at:
+Trying to find where child genome pushes an undefined element -done
+
+==================================================================
+
+11/16/16
+
+Fixed the crossoverparents bug. PushMutatedGene Function inside a function is caleld regardless at first call of crossoverparents function.
+
+Typing errors here and there. And so on.
+
+Generation average fitnesses do not increase. expected. 
+
+work on real generation function now with selections.
+
+11/17/16
+
+I made the real generation function work. Average fitnesses go up :)
+
+====================================================================
+
+11/24/16
+
+Over generations the average fitness gets higher but then is stuck and never goes higher. Even so, the points the fittest individual chooses aren't the obvious choices and are obviously the bad ones.
+
+Working on it.
+
+
+	One of the causes for having a low maximum is that individuals share too much in common and a lot of the same genes. Arrangement of genes do not matter.
+
+	---------------------------------------------------------------
+
+11/27/16
+
+Previously been toying around with mutationProbability and unusedGeneProbability.
+
+There is a low probability, with enough generations, that genes duplicate. The fittest individual, after a number of generations, will have two of the same genes and therefore having a lower distance and dominating the population.
+
+Somewhere in the crossoverParents function, it allows duplication of genes in one genome.
+
+11/29/16
+
+Finding duplication of genes bug.
+
+Lowered the amount of random dots there are. The bigger the population, the more likely there is to be a duplication.
+
+12/1/16
+
+Still working on crossoverParents bug with duplication.
+
+What I know: 
+
+1. Bug is based on probability and higher chance with more generations and higher populations
+
+2. IT IS NOT found in the initiation of the genome
+
+3. Having the same parent does not correlate with having the same parents
+
+Working on returning info of crossover function on a child Genome.
+
+Right now I'm returning common, uncommon, and unusedGenes used for an individual and returning it the indvidiual to save and see a relation.
+I am using the TEMPORARY_CROSSOVER_PARENT_RETURN_INFO variable for it atm to cache the info.	
+
+============================
+
+It would seem that the duplicated gene is in both the common and unused gene arrays. It only happens in common and unused gene. So therefore, the bug resides, not in the creation and mutation of the genome, but the creation of the common and unused genes.
+
+Now it seems that the uncut gene that is causing duplication DOES NOT have to be in common and unused gene. smh.
+
+Can't find the bug. Rewriting the function. smh.
+
+FIXED THE BUG BY REWRITING. SMH. Don't even know how I did it but it's all cool, as long it's fixed. smh
+
+===============================
+
+Next would be optimizing/fine-tuning the probabilities of mutation and mutation to unusedgenes to allow more mutations and better results.
+
+12/2/16
+
+Working on removing return info code. -done
+
+Working on optimizing mutation probabilities and stuff.
+
+Worked on predicting the amount of configurations for a genome length given a set of random points. The equation goes as follows:
+
+possible configs = r^2-gr+1
+
+where r = amount of random points
+      g = genome length
+
+      (r-1)(r-g) + r-(g-1) from a repeating pattern.
+
+Exception with genome-length of 1. A genome-length of one will always
+equal the amount of random points there are.
+
+p = r, if g = 1.
+
+This was all done to better understand how to optimize the genetic algorithms.
+
+The surprising thing is that there are surprsingly not alot of configurations for genome-lengths, yet the program fails to find the best one.
+
+
+12/3/16
+
+Working on breaking down math and problem to find out why generations will not improve.
+
+P_O = r^2-gr+1
+
+P_N = ((P_O - 1)^t)/P_O^t
+
+where
+
+P_N = probability that after t generations that the best solution will not be found at random.
+
+P_O = possible results
+
+To find how many random is needed to get the probability to 10% of not getting it, we do:
+
+g = goal decimal
+
+P_N = g
+P_N = 0.1
+
+log_(P_N)(g) = amount of generations needed
+
+By these equations, with a 5 point random space and a 2 genome-length, 35 random tries would get us to 10% chance of not getting the best answer.
+
+Working on rendering data of random points to the canvas. 
+
+THERE WAS A BUG IN CALCULATE DISTANCE FUNCTION. MAJOR BUG. SMH
+IT WAS RETURN MATH.SQRT(delta x^2, delta y^2), replaced the comma with a plus sign (+).
+
+Now working on how to continue from an explicit genome length to finding out the best bang for buck; connections per distance.
+
+=================================================================
+
+WHEN A GENOME INCREASES FOR A NEW POPULATION, THE LAST POINTS ARE ALWAYS CHOSEN AGAIN SINCE THEY ARE THE SHORTEST DISTANCES. THE POINTS SLOWLY INCREASE, BUT DON'T CHANGE. 
+
+I can take advantage of this. But then again, there could be a shorter distance out there but allowing such manipulation would hinder the algorithm from founding it.
+
+The thing is, this makes genetic algorithms obsolete and uneeded.
+
+12/22/16
+
+Working on variable-length genomes. 
+
+I_F = (C/D) + M(C-1)
+
+where M is the multiplier to alleviate lower-tier bias.
