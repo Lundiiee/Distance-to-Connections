@@ -48,7 +48,7 @@ var main = {
 	canvasObject: document.getElementById("canvas"),
 	canvas: null,
 
-	//in case we any other algorithms to solve CDP
+	//in case we have any other algorithms to solve CDP
 	enableGeneticOptimization: true,
 
 	//array for holding objects with color and array of points
@@ -230,8 +230,8 @@ Array.prototype.indexOfObject = function(object) {
 		}
 
 
-		//if it was able to get past continue statement and equality loops,
-		//it is equal, so return index
+		//if it was able to get bypass continue statement and equality,
+		//the index is equal, so return index
 		return i;
 	}
 

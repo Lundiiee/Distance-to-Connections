@@ -1,10 +1,17 @@
 //jshint ignore:start
+
 function Individual() {
 	this.genome = [];
 	this.distance = 0;
 	this.fitness = 0;
 }
 
+/*
+	Main.genetics can solve the two problems:
+
+	1. What connections lead to the best connections to distance ratio
+	2. What solution will have the most connections under a distance
+*/
 main.genetics = {
 	
 	individuals: [],
@@ -25,10 +32,23 @@ main.genetics = {
 	//affects tournament pressure
 	tournamentSize: undefined,
 
+	/*
+		Working on problem variable can either be 0 or 1
+
+		0: What is the best distance to connection ratio (Connections to Distance)
+		1: What solution has the most connections under a distance (Connections under D)
+	*/
+	ratioOrDistanceProblem: undefined, 
+
 	initIndividuals: function() {
+		if(this.indiiduals.length > 0) {
+			throw Error("Cannot initialize individuals while it is already initialized!");
+		}
+
+		this.individuals = [];
 		for (var i = 0; i < this.populationLength; i++) {
 			this.individuals.push(new Individual());
-			this.individuals[this.individuals.length - 1].genome = this.createRandGenome(main);
+			this.individuals[this.individuals.length - 1].genome = this.createRandomGenome(main);
 
 			this.individuals[this.individuals.length - 1].distance = main.calculateSumOfDistances(this.individuals[this.individuals.length - 1].genome);
 
@@ -62,7 +82,7 @@ main.genetics = {
 		//creation of uncommon, common, and unusedGene
 		for(var i = 0; i < genomeLength; i++) {
 
-			//we loop through each parent's genome simutaneously
+			//we loop through each parent's genome simultaneously
 			//and we check each of their genome index's with each other
 			//to find common, uncommon, and unused genes
 			var parentOneIndex = parent1.genome[i],
@@ -141,16 +161,16 @@ main.genetics = {
 		genePoolChoice.splice(randomIndex, 1);
 	},
 
-	initIndividual: function(crossParent1, crossParent2) {
-		var individual = new Individual();
+	// initIndividual: function(crossParent1, crossParent2) {
+	// 	var individual = new Individual();
 
-		individual.genome = main.genetics.crossoverParents(crossParent1, crossParent2);
+	// 	individual.genome = main.genetics.crossoverParents(crossParent1, crossParent2);
 
-		individual.distance = main.calculateSumOfDistances(individual.genome);
-		individual.fitness = individual.genome.length / individual.distance;
+	// 	individual.distance = main.calculateSumOfDistances(individual.genome);
+	// 	individual.fitness = individual.genome.length / individual.distance;
 
-		return individual;
-	},
+	// 	return individual;
+	// },
 
 	getFittestIndividual: function(populationArray) {
 		var fittest = populationArray[0],
@@ -165,15 +185,24 @@ main.genetics = {
 	},
 
 	//creates random genome from random coordinates array
-	createRandGenome: function() {
-		var genome = [];
+	createRandomGenome: function() {
+		var genome = [],
+			genomeLength = undefined;
 
-		for (var i = 0; i < this.genomeLength; i++) {
-			var randomIndex = Math.floor(Math.random() * (main.randomPoints.length));
+		if(this.ratioOrDistanceProblem == 0)
+			genomeLength = main.genetics.variedGenomeLength.getRandomGenomeLength();
+		else
+			genomeLength = main.randomPoints.length;
 
-			//to not have two of the same gene, change the index to something elese
-			while (genome.indexOf(main.randomPoints[randomIndex]) > -1)
-				randomIndex = Math.floor(Math.random() * (main.randomPoints.length));
+		//todo: instead of making a new version of random points array every time
+		//since we're doing random, we can just use a dereferenced version and have
+		//it be spliced until it is empty and we can just reset. lasagna for thought
+
+		var _randomPoints = main.randomPoints.concat(); //dereference from main variable
+
+		for (var i = 0; i < genomeLength; i++) {
+			var randomIndex = Math.floor(Math.random() * (_randomPoints.length));
+			_randomPoints.splice(randomIndex, 1);
 
 			genome.push(main.randomPoints[randomIndex]);
 		}
@@ -189,7 +218,17 @@ main.genetics = {
 		return -1;
 	},
 
-	createGeneration: function() {
+	createGeneration: function(whichProblem) {
+		if(whichProblem == null) {
+			console.log("Parameter for createGeneration is null! It is set to 0! (Best Connections to Distance Ratio)");
+			whichProblem = 0;
+		}
+
+		//can either be 0 or 1
+		//0 is connection to distance
+		//1 is connections under distance
+		this.ratioOrDistanceProblem = whichProblem;
+
 		this.generation++;
 
 		if (this.individuals.length === 0) {
@@ -208,11 +247,21 @@ main.genetics = {
 					parent2 = this.tournamentSelection(this.individuals),
 					child = new Individual();
 
+				//will later merge the two seperate crossoverParents functions
+				//child.genome = this.crossoverParents(parent1, parent2);
+
+				if(this.ratioOrDistanceProblem === 0) {
+					child.genome = this.crossoverParents(parent1, parent2);
+					child.distance = main.calculateSumOfDistances(child.genome);
+					child.fitness = child.genome.length / child.distance;
 				
-				child.genome = this.crossoverParents(parent1, parent2);
-				
-				child.distance = main.calculateSumOfDistances(child.genome);
-				child.fitness = child.genome.length / child.distance;
+				} else if(this.ratioOrDistanceProblem === 1) {
+					child.genome = main.genetics.variedGenomeLength.crossoverParents(parent1, parent2);
+					child.distance = main.calculateSumOfDistances(child.genome);	
+					child.fitness = main.genetics.variedGenomeLength.getIndividualFitness(child.genome.length, child.distance);
+
+				} else
+					throw Error("What is life? What is ratioOrDistanceProblem equal to? Entropy. Life. Accidents. What are they? What is they?");
 
 				newGeneration.push(child);
 			}
@@ -231,7 +280,7 @@ main.genetics = {
 		};
 
 		main.renderConnections(main.canvas);
-
+		
 	},
 
 	//temporary --- will be automatic until testing is done.
@@ -275,3 +324,167 @@ main.genetics = {
 	},
 
 };
+
+//modified or new functions to handle different genome lengths
+main.genetics.variedGenomeLength = {
+
+	multiplier: 0.05,
+
+	crossoverParents: function(parent1, parent2) {
+		
+		var commonGenes = [],
+			uncommonGenes = [],
+			//use concat to dereference unusedGenes variable from main.randomPoints
+			unusedGenes = main.randomPoints.concat(),
+
+			childGenome = [],
+			genomeLength = parent1.genome.length,
+
+			indexOfCoords = main.genetics.indexOfObjectCoordinates,
+
+			mutationProbability = main.genetics.mutationProbability,
+			useUnusedGeneProbability = main.genetics.useUnusedGeneProbability;
+
+		var longestGenomeLengthOfParents = undefined;
+
+		if(parent1.genome.length > parent2.genome.length)
+			longestGenomeLengthOfParents = parent1.genome.length;
+		else
+			longestGenomeLengthOfParents = parent2.genome.length;
+
+		//====== Where it gets modified =============
+		//we use the longest parent genome length because
+		//we can keep going through the genome length simultaneously
+		//but we can stop checking one of the parents when one
+		//reaches/surpasses its genome length
+		for (var i = 0; i < longestGenomeLengthOfParents; i++) {
+			var parentOneIndex = parent1.genome[i],
+				parentTwoIndex = parent2.genome[i];
+
+			var parentOneIndex_in_parentTwoGenome,
+				parentOneIndex_in_unusedGeneArray;
+
+			var parentTwoIndex_in_parentOneGenome;
+
+			if(parentOneIndex != null) {
+				parentOneIndex_in_parentTwoGenome = indexOfCoords(parent2.genome, parentOneIndex);
+				parentOneIndex_in_unusedGeneArray = indexOfCoords(unusedGenes, parentOneIndex);
+
+				if(parentOneIndex_in_parentTwoGenome != -1)
+					commonGenes.push(parentOneIndex);
+				else
+					uncommonGenes.push(parentOneIndex);
+
+				unuseGenes.splice(parentOneIndex_in_unusedGeneArray, 1);
+			}
+
+			if(parentTwoIndex != null) {
+				parentTwoIndex_in_parentOneGenome = indexOfCoords(parent1.genome, parentTwoIndex);
+				
+				if(parentTwoIndex_in_parentOneGenome == -1) {
+					uncommonGenes.push(parentTwoIndex);
+					unusedGenes.splice(indexOfCoords(unusedGenes, parentTwoIndex), 1);
+				}
+
+			}
+
+		}
+
+
+		/*
+		TODO: GENOMELENGTH WILL BE CHANGED AFTER THE CREATIONG OF RANDOM DISUNIFORM DISTRIBUTION IS FINISHED
+		*/
+
+		var randomGenomeLength = this.getRandomGenomeLength(parent1, parent2);
+
+		//creation of childGenome	
+		for (var j = 0; j < genomeLength; j++) {
+
+			var useCommonGenes = commonGenes.length > 0 && !(Math.random() < mutationProbability);
+
+			if (useCommonGenes) {
+				var randomIndex = Math.floor(Math.random() * (commonGenes.length));
+
+				childGenome.push(commonGenes[randomIndex]);
+				commonGenes.splice(randomIndex, 1);
+
+				continue;
+			}
+
+			var useUnusedGeneArrayForMutation = (Math.random() <= useUnusedGeneProbability)	&&
+				unusedGenes.length !== 0;
+			
+			if (useUnusedGeneArrayForMutation) {
+				main.genetics.pushMutatedGene(true, unusedGenes, uncommonGenes, childGenome);
+				
+				continue;
+
+			} else {
+
+				//if uncommongenes is empty, push random index commongene index
+				if (uncommonGenes.length === 0) {
+					var randomIndex = Math.floor(Math.random() * (commonGenes.length));
+
+					childGenome.push(commonGenes[randomIndex]);
+					commonGenes.splice(randomIndex, 1);
+
+					continue;
+				}
+
+				//we're using uncommon genes because we didn't choose to use unusedgenes
+				//and also uncommon gene array is not empty
+				main.genetics.pushMutatedGene(false, unusedGenes, uncommonGenes, childGenome);
+			}
+
+		}
+
+		return childGenome;
+
+	},
+
+	getIndividualFitness: function(connections, distance) {
+		//fitness = C/D + m(c-1)
+		return (connections/distance) + (this.multiplier * (connections - 1));
+	},
+
+	getRandomGenomeLength: function(parentLength, parentTwoLength) {
+
+	}
+
+}
+
+function settingRandomGenome() {
+	
+}
+
+function disuniformDistribution(distributionArrayMax) {
+	if(distributionArrayMax == null)
+		throw Error("Argument for disuniformDistribution is not set! (distributionArrayMax)");
+
+	this.distributionArray = [];
+
+	this.numberAndAttribute = [];	
+	this.distributionArrayMax = distributionArray;
+
+	this.probabilityCount = 0;
+}
+
+disuniformDistribution.prototype.setNumberAndProbability = function(number, probability) {
+	if(this.probabilityCount + probability > 1)
+		throw Error("Probability  for " + number + " is too large for the sum of past numbers and their probabilities.");
+
+	this.numberAndAttribute.push([number, probability]);
+};
+
+disuniformDistribution.prototype.resetDistributionVariables = function(distributionArrayMax) {};
+
+//uses info gained from setNumberProbability function to initialize the distribution array once finished
+disuniformDistribution.prototype.initializeArray = function() {
+	for(var i = 0 ; i < this.numberAndAttribute.length; i++) {
+		//j is less than the amount of the number (probability * max)
+		for(var j = 0; j < this.numberAndAttribute[i][1] * this.distributionArrayMax; i++) {
+			this.distributionArray.push(this.numberAndAttribute[i][0]);
+		}
+	}
+};
+

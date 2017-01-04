@@ -33,6 +33,19 @@ TODO:
 8. Remove return info code from todo 7
 	-done
 
+9. Work on modified crossover function for varied genome lengths 
+
+10. Work on disuniform distribution random number
+	-done
+
+11. When done with doing the modified functions, try to
+merge them with the original functions for minimization
+
+12. Merge crossoverParent functions together into
+main.genetics 
+
+13. Get rid of initIndividuals function somehow
+
 Center Connections
 Line Map
 
