@@ -41,14 +41,14 @@ main.genetics = {
 	ratioOrDistanceProblem: undefined, 
 
 	initIndividuals: function() {
-		if(this.indiiduals.length > 0) {
+		if(this.individuals.length > 0) {
 			throw Error("Cannot initialize individuals while it is already initialized!");
 		}
 
 		this.individuals = [];
 		for (var i = 0; i < this.populationLength; i++) {
 			this.individuals.push(new Individual());
-			this.individuals[this.individuals.length - 1].genome = this.createRandomGenome(main);
+			this.individuals[this.individuals.length - 1].genome = this.createRandomGenome();
 
 			this.individuals[this.individuals.length - 1].distance = main.calculateSumOfDistances(this.individuals[this.individuals.length - 1].genome);
 
@@ -190,9 +190,11 @@ main.genetics = {
 			genomeLength = undefined;
 
 		if(this.ratioOrDistanceProblem == 0)
-			genomeLength = main.genetics.variedGenomeLength.getRandomGenomeLength();
+			genomeLength = main.genetics.genomeLength;
+		else if(this.ratioOrDistanceProblem == 1)
+			genomeLength = Math.floor(Math.random() * main.randomPoints.length);
 		else
-			genomeLength = main.randomPoints.length;
+			throw Error("What is life. What is ratioOrDistanceProblem equal to.");
 
 		//todo: instead of making a new version of random points array every time
 		//since we're doing random, we can just use a dereferenced version and have
@@ -219,14 +221,14 @@ main.genetics = {
 	},
 
 	createGeneration: function(whichProblem) {
-		if(whichProblem == null) {
-			console.log("Parameter for createGeneration is null! It is set to 0! (Best Connections to Distance Ratio)");
-			whichProblem = 0;
-		}
 
-		//can either be 0 or 1
-		//0 is connection to distance
-		//1 is connections under distance
+		if(whichProblem == null && this.ratioOrDistanceProblem == undefined)
+			throw Error("whichProblem has been left undefined! Fix it.");
+
+		if(this.ratioOrDistanceProblem != undefined && whichProblem != this.ratioOrDistanceProblem)
+			throw Error("We can't change the problem number after initializing!");
+
+		//can either by 0 or 1; ratio or distance problem
 		this.ratioOrDistanceProblem = whichProblem;
 
 		this.generation++;
@@ -238,7 +240,6 @@ main.genetics = {
 		}
 		
 		var newGeneration = [];
-
 		if (this.useTournamentSelection) {
 
 			//minus 1 from populationLength because we push fittestIndividual
@@ -250,12 +251,12 @@ main.genetics = {
 				//will later merge the two seperate crossoverParents functions
 				//child.genome = this.crossoverParents(parent1, parent2);
 
-				if(this.ratioOrDistanceProblem === 0) {
+				if(this.ratioOrDistanceProblem == 0) {
 					child.genome = this.crossoverParents(parent1, parent2);
 					child.distance = main.calculateSumOfDistances(child.genome);
 					child.fitness = child.genome.length / child.distance;
 				
-				} else if(this.ratioOrDistanceProblem === 1) {
+				} else if(this.ratioOrDistanceProblem == 1) {
 					child.genome = main.genetics.variedGenomeLength.crossoverParents(parent1, parent2);
 					child.distance = main.calculateSumOfDistances(child.genome);	
 					child.fitness = main.genetics.variedGenomeLength.getIndividualFitness(child.genome.length, child.distance);
@@ -375,7 +376,7 @@ main.genetics.variedGenomeLength = {
 				else
 					uncommonGenes.push(parentOneIndex);
 
-				unuseGenes.splice(parentOneIndex_in_unusedGeneArray, 1);
+				unusedGenes.splice(parentOneIndex_in_unusedGeneArray, 1);
 			}
 
 			if(parentTwoIndex != null) {
@@ -398,7 +399,7 @@ main.genetics.variedGenomeLength = {
 		var randomGenomeLength = this.getRandomGenomeLength(parent1, parent2);
 
 		//creation of childGenome	
-		for (var j = 0; j < genomeLength; j++) {
+		for (var j = 0; j < 2; j++) {
 
 			var useCommonGenes = commonGenes.length > 0 && !(Math.random() < mutationProbability);
 
@@ -445,16 +446,7 @@ main.genetics.variedGenomeLength = {
 	getIndividualFitness: function(connections, distance) {
 		//fitness = C/D + m(c-1)
 		return (connections/distance) + (this.multiplier * (connections - 1));
-	},
-
-	getRandomGenomeLength: function(parentLength, parentTwoLength) {
-
 	}
-
-}
-
-function settingRandomGenome() {
-	
 }
 
 function disuniformDistribution(distributionArrayMax) {

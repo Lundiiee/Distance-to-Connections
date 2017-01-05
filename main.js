@@ -59,7 +59,7 @@ var main = {
 	//drawOnly equals to an array
 	drawOnly: undefined,
 
-	init: function() {
+	init: function(whichProblem) {
 		if (main.amountOfRandomPoints <= main.genetics.genomeLength)
 			throw Error("Oi. Random points less than genome length mate! That can't do!");
 
@@ -87,23 +87,15 @@ var main = {
 		main.renderConnections(main.canvas);
 
 		if (main.enableGeneticOptimization)
-			main.genetics.initIndividuals();
+			main.genetics.createGeneration(whichProblem);
 	},
 
 	//calculates the sum of distances FROM THE MAIN NODE
 	calculateSumOfDistances: function(randomPoints) {
 		var distanceSum = 0;
-//			distanceFromNode = [];
 
-		for (var i = 0; i < randomPoints.length; i++) {
+		for (var i = 0; i < randomPoints.length; i++)
 			distanceSum += this.calculateDistance(this.mainCoordinate, randomPoints[i]);
-			// distanceFromNode.push({
-			// 	x: randomPoints[i].x,
-			// 	y: randomPoints[i].y,
-			// 	distance: this.calculateDistance(this.mainCoordinate, randomPoints[i])
-			// });
-		}
-
 
 		return distanceSum;
 	},

@@ -264,4 +264,15 @@ With a set of numbers:
 1, 2, 3, 4, 5, 6
 
 3 will have a 1/2 chance of being chosen.
-2 will have a 
+2 will have a .... nvm
+
+1/4/16
+
+This beginning random distribution with probability
+density and stuff is really complicated and I don't
+want to spend too much time on it.
+
+Beginning of the intialization of the population
+will have a random number where the max is the
+amount of random points they are.
+
