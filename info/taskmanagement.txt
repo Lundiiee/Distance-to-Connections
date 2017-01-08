@@ -276,3 +276,43 @@ Beginning of the intialization of the population
 will have a random number where the max is the
 amount of random points they are.
 
+Distribution:
+
+	Since R is constrained by a compound inequality, we
+	should save the indexes were the number increases,
+	so we can make sure its less than the index.
+
+	Also make sure that the determination of its +/-
+	is established before finding the number. It differs,
+	based on the sign in the inequality.
+
+
+
+1/7/17
+
+Create a visulization of individual's genome lengths and visually see where the lengths converge, if they converge.
+
+How about, instead of doing a disuniform distribution, we just use a uniform distribution random number
+of a set that has the size equal to 100 random points to 10 elements in random set.
+3
+We chose the best fit, and subtract or add according to random number. Or determine add or plus according
+to the genome length averages.
+
+The problem would be that the averages would bounce around a lot. It would take longer to converge as well. Or even
+if it will converge at all.
+
+===================================
+
+Another idea would be to keep the disuniform distribution. If the difference in genome length is greater
+than n and has the differnece in fitness is greater than b, than the child genome is equal to the greatest parent.
+
+If genome length is under n, than the child genome will equal the fittest parent +/- R, where R gets its
+value from a the random disuniform distribution.
+
+===================================================
+
+
+R = [1,2...n]
+n = x/10, based on 10:1 ratio, 10 random points to 1 element in random set
+
++/- = 1/2 chance

@@ -5,7 +5,7 @@
 	
 <script type="text/javascript">
 	
-	main.init(1);
+	main.init(1); 
 
 	console.log("Population Size: " + main.genetics.populationLength);
 
@@ -18,7 +18,72 @@
 </script>
 
 <script type='text/javascript'>
+/*
+var ctx = document.getElementById("canvas");
+
+ctx.width = 1000;
+ctx.height = 1000;
+
+var barWidth = 900,
+	barHeight = ctx.height / 6,
+
+	barX = (ctx.width / 2) - (barWidth/2),
+	barY = (ctx.height / 2) - barHeight/2;
+
+ctx = ctx.getContext('2d');
+
+var percentageMax = 0,
+	percentages = [];
+
+var numbersAndProbability = [];
+
+var n = 2;
+
+percentages.push(1);
+
+function makePercentages(n) {
 	
+}
+
+var nextX = barX,
+	nextY = barY;
+
+function draw() {
+	ctx.clearRect(0,0,10000,1000);
+	
+	for(var i = 0; i < percentages.length; i++) {
+		ctx.beginPath();
+	
+		ctx.fillStyle = '#'+Math.floor(Math.random()*16777215).toString(16);
+		ctx.fillRect(nextX, nextY, percentages[i]*barWidth, barHeight);
+
+		percentageMax += percentages[i];
+		if(percentageMax > 1)
+			throw Error("Percentage equates to over 1");
+
+		nextX += percentages[i]*barWidth;
+	}
+}
+
+var _c = 0;
+setInterval(function() {
+	_c++;
+
+	percentages[0] *= 0.985;
+	console.log(_c + " probability: ");
+	draw();
+	
+	 // ctx.fillStyle = '#'+Math.floor(Math.random()*16777215).toString(16);
+	 ctx.fillStyle = "red";
+
+	 ctx.fillRect(nextX, nextY, barWidth-(percentages[0]*barWidth), barHeight);
+
+	nextX = barX;
+	percentageMax = 0;
+},100);
+*/
+
+//this for solving some power set stuff	
 /*
 var combine = function(a, min) {
     var fn = function(n, src, got, all) {

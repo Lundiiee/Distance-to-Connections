@@ -1,5 +1,5 @@
 /*
-	Optimizing DC problem
+	Optimizing CD problem
 	Science Fair 2016-17
 
 	Distance and Connections Problem -
@@ -37,7 +37,7 @@ var main = {
 	canvasHeight: 1080,
 
 	randomPoints: [],
-	amountOfRandomPoints: 25,
+	amountOfRandomPoints: 100,
 
 	//max x and y for random point generation
 	maxX: null,
@@ -142,7 +142,7 @@ var main = {
 
  			canvas.beginPath();
 
- 			canvas.lineWidth = 1	;
+ 			canvas.lineWidth = 1;
 
 			//draw line from the center node to the random node
 			canvas.moveTo(main.mainCoordinate.x + (main.canvasObject.width / 2),

@@ -142,7 +142,8 @@ main.genetics = {
 				}
 
 				//we're using uncommon genes because we didn't choose to use unusedgenes
-				//and also uncommon gene array is not empty
+				//and also uncommon gene array is not empty, if it were, the above
+				//if statement would execute 
 				main.genetics.pushMutatedGene(false, unusedGenes, uncommonGenes, childGenome);
 
 			}
@@ -225,6 +226,8 @@ main.genetics = {
 		if(whichProblem == null && this.ratioOrDistanceProblem == undefined)
 			throw Error("whichProblem has been left undefined! Fix it.");
 
+		if(!whichProblem) whichProblem = this.ratioOrDistanceProblem;
+
 		if(this.ratioOrDistanceProblem != undefined && whichProblem != this.ratioOrDistanceProblem)
 			throw Error("We can't change the problem number after initializing!");
 
@@ -272,7 +275,9 @@ main.genetics = {
 		newGeneration.push(this.getFittestIndividual(this.individuals));
 		
 		console.log("Average Fitness of Generation: " + this.averageFitnessOfGeneration(newGeneration));
-		
+		if(this.ratioOrDistanceProblem == 1)
+			console.log("Average Genome Length of Generation: " + this.variedGenomeLength.averageGenomeLength(newGeneration));
+
 		this.individuals = newGeneration;
 
 		main.drawOnly = {
@@ -322,7 +327,7 @@ main.genetics = {
 		}
 
 			return sumOfFitnesses / population.length;
-	},
+	}
 
 };
 
@@ -330,6 +335,8 @@ main.genetics = {
 main.genetics.variedGenomeLength = {
 
 	multiplier: 0.05,
+	//n = x/10
+	randomLengthRatio: Math.floor(main.randomPoints.length/10),
 
 	crossoverParents: function(parent1, parent2) {
 		
@@ -396,10 +403,17 @@ main.genetics.variedGenomeLength = {
 		TODO: GENOMELENGTH WILL BE CHANGED AFTER THE CREATIONG OF RANDOM DISUNIFORM DISTRIBUTION IS FINISHED
 		*/
 
-		var randomGenomeLength = this.getRandomGenomeLength(parent1, parent2);
+		var fittestIndividual = undefined;
+
+		if(parent1.fitness >= parent2.fitness)
+			fittestIndividual = parent1;
+		else if(parent2.fitness > parent1.fitness)
+			fittestIndividual = parent2;
+
+		var randomGenomeLength = this.getRandomGenomeLength(fittestIndividual);
 
 		//creation of childGenome	
-		for (var j = 0; j < 2; j++) {
+		for (var j = 0; j < randomGenomeLength; j++) {
 
 			var useCommonGenes = commonGenes.length > 0 && !(Math.random() < mutationProbability);
 
@@ -439,6 +453,9 @@ main.genetics.variedGenomeLength = {
 
 		}
 
+		if(childGenome.length > main.randomPoints.length || childGenome.length < 0)
+			throw Error("Child genome is greater than max genome or less than 0");
+
 		return childGenome;
 
 	},
@@ -446,7 +463,71 @@ main.genetics.variedGenomeLength = {
 	getIndividualFitness: function(connections, distance) {
 		//fitness = C/D + m(c-1)
 		return (connections/distance) + (this.multiplier * (connections - 1));
+	},
+
+	getRandomGenomeLength: function(fittestIndividual) {
+		
+		var sign = Math.random() > 0.5 ? "add" : "subtract";
+
+		// var maxNegative = -(fittestIndividual.genome.length);
+		// var maxPositive = main.randomPoints.length - fittestIndividual.genome.length;
+
+		
+
+		// (idea)
+		// Without n = x/10 for random set, but using the equation
+
+		// console.log(maxPositive);
+		// console.log(fittestIndividual.genome.length);
+		// if(sign == "add") 
+		// 	return fittestIndividual.genome.length + Math.floor(Math.random() * (maxPositive));
+		// else if(sign == "subtract")
+		// 	return fittestIndividual.genome.length - Math.floor(Math.random() * (maxNegative));
+		
+		
+
+		// var addingMax = this.randomLengthRatio > maxPositive ? maxPositive : this.randomLengthRatio;
+		// var subtractingMax = -(this.randomLengthRatio) < maxNegative ? maxNegative : -this.randomLengthRatio;
+
+
+		// if(sign == "add") {
+		// 	console.log(fittestIndividual.genome.length + Math.floor(Math.random() * (addingMax)));
+		// 	return fittestIndividual.genome.length + Math.floor(Math.random() * (addingMax));
+		// }
+		// else if(sign == "subtract"){
+		// 	console.log(fittestIndividual.genome.length - Math.floor(Math.random() * (subtractingMax)));
+		// 	return fittestIndividual.genome.length - Math.floor(Math.random() * (subtractingMax));
+		// }
+
+
+		if(sign == "add") {
+			var length = Math.floor(Math.random() * (this.randomLengthRatio)) + fittestIndividual.genome.length;
+			
+			if(length > main.randomPoints.length)
+				length = main.randomPoints.length;
+
+			return length;
+
+		} else if(sign == "subtract") {
+			var length = fittestIndividual.genome.length - Math.floor(Math.random() * (this.randomLengthRatio));
+			
+			if(length < 1)
+				length = 1;
+
+			return length;
+		}
+
+	},
+
+	averageGenomeLength: function(population) {
+		var sum = 0;
+
+		for(var i = 0; i < population.length; i++)
+			sum += population[i].genome.length;
+
+		return sum / population.length;
 	}
+
 }
 
 function disuniformDistribution(distributionArrayMax) {
