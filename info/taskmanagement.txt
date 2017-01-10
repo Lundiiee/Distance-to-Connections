@@ -316,3 +316,65 @@ R = [1,2...n]
 n = x/10, based on 10:1 ratio, 10 random points to 1 element in random set
 
 +/- = 1/2 chance
+
+
+
+1/8/16
+
+Added that if distance is over k, child is terminated.
+
+Now the genome length averages are not changing over generations. They are at an integer, and all genomes
+are the equal to each other. 
+
+Since I added fitness = 0 when d > k, only one 
+individual is in the population, with a distance
+much greater than k.
+soooo, idk.
+
+None of the individuals have a distance under k, therefore all individuals have a low fitness.
+
+Plan of action:
+=================================
+
+Start with low genomes. Maybe with a 10:1 ratio
+for random genome lengths.
+
+If all individuals have distances greater than K,
+than we need some kind of UNDER_K_SEARCH_MODE.
+Where the program will actively search for
+genes lower than k.
+
+It places found genes in a gene pool. A new generation
+will get its genes from that pool.
+
+A = average number of pool
+
+Ax < K, where K is the max distance,
+when x is solved,
+
+x < K/A, therefore, the genome length should be less 
+than K/A.
+
+x will determine the max genome length for the
+starting generation.
+
+eh, nahh. maybe keep the random 10:1 ratio, idk.
+
+-----------------
+
+Since I_F = (c/D) + m(c-1) favors more connections and
+basically doesn't follow the rules,
+
+we can use the equation:
+
+I_F = (c/d) + m(c-1) - m_2(d-k),
+
+where k is max distance and m_2 is other multiplier.
+
+1/9/16
+
+Maybe add free-space population in just c/d ratio
+problem. (w/ m(connections-1). Laterrr.
+
+
+

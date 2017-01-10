@@ -17,7 +17,7 @@ main.genetics = {
 	individuals: [],
 	fittestTierIndividuals: [],
 
-	populationLength: 5,
+	populationLength: 2,
 
 	generation: 0,
 
@@ -38,9 +38,21 @@ main.genetics = {
 		0: What is the best distance to connection ratio (Connections to Distance)
 		1: What solution has the most connections under a distance (Connections under D)
 	*/
-	ratioOrDistanceProblem: undefined, 
+	ratioOrDistanceProblem: undefined,
+	maxDistance: 10,
+
+	//10:1 ratio for points length to random genome length
+	randomGenomeLengthMax: main.amountOfRandomPoints/10,
+	
+	//a mode were the program actively searches for genes less than the distance k
+	//and 
+	UNDER_D_SEARCH_MODE: false,
 
 	initIndividuals: function() {
+
+		if(this.ratioOrDistanceProblem == 1 && main.amountOfRandomPoints < 10)
+			throw Error("Amount of random points is less than 10. Random genome lengths are set to a 10:1 ratio! We can't have less than 10!");
+			
 		if(this.individuals.length > 0) {
 			throw Error("Cannot initialize individuals while it is already initialized!");
 		}
@@ -193,9 +205,11 @@ main.genetics = {
 		if(this.ratioOrDistanceProblem == 0)
 			genomeLength = main.genetics.genomeLength;
 		else if(this.ratioOrDistanceProblem == 1)
-			genomeLength = Math.floor(Math.random() * main.randomPoints.length);
+			genomeLength = Math.floor(Math.random() * (main.genetics.randomGenomeLengthMax));
 		else
 			throw Error("What is life. What is ratioOrDistanceProblem equal to.");
+
+		if(genomeLength == 0) genomeLength++;
 
 		//todo: instead of making a new version of random points array every time
 		//since we're doing random, we can just use a dereferenced version and have
@@ -226,11 +240,10 @@ main.genetics = {
 		if(whichProblem == null && this.ratioOrDistanceProblem == undefined)
 			throw Error("whichProblem has been left undefined! Fix it.");
 
-		if(!whichProblem) whichProblem = this.ratioOrDistanceProblem;
+		if(whichProblem == null) whichProblem = this.ratioOrDistanceProblem;
 
 		if(this.ratioOrDistanceProblem != undefined && whichProblem != this.ratioOrDistanceProblem)
 			throw Error("We can't change the problem number after initializing!");
-
 		//can either by 0 or 1; ratio or distance problem
 		this.ratioOrDistanceProblem = whichProblem;
 
@@ -241,12 +254,12 @@ main.genetics = {
 				
 			console.log("Initindividuals() called because individuals array is empty!");
 		}
-		
+
 		var newGeneration = [];
 		if (this.useTournamentSelection) {
 
 			//minus 1 from populationLength because we push fittestIndividual
-			for (var i = 0; i < main.genetics.populationLength - 1; i++) {
+			for (var i = 0; i < main.genetics.populationLength; i++) {
 				var parent1 = this.tournamentSelection(this.individuals),
 					parent2 = this.tournamentSelection(this.individuals),
 					child = new Individual();
@@ -260,8 +273,19 @@ main.genetics = {
 					child.fitness = child.genome.length / child.distance;
 				
 				} else if(this.ratioOrDistanceProblem == 1) {
+
 					child.genome = main.genetics.variedGenomeLength.crossoverParents(parent1, parent2);
-					child.distance = main.calculateSumOfDistances(child.genome);	
+					console.log(child.genome);
+					child.distance = main.calculateSumOfDistances(child.genome);
+					console.log(child.distance );
+					//terminate child if he exceeds the max distance
+					// if(child.distance > this.maxDistance) {
+					// 	child.fitness = 0;	
+					// 	newGeneration.push(child);
+
+					// 	continue;
+					// }
+
 					child.fitness = main.genetics.variedGenomeLength.getIndividualFitness(child.genome.length, child.distance);
 
 				} else
@@ -272,7 +296,7 @@ main.genetics = {
 
 		}
 
-		newGeneration.push(this.getFittestIndividual(this.individuals));
+		//newGeneration.push(this.getFittestIndividual(this.individuals));
 		
 		console.log("Average Fitness of Generation: " + this.averageFitnessOfGeneration(newGeneration));
 		if(this.ratioOrDistanceProblem == 1)
@@ -336,7 +360,7 @@ main.genetics.variedGenomeLength = {
 
 	multiplier: 0.05,
 	//n = x/10
-	randomLengthRatio: Math.floor(main.randomPoints.length/10),
+	randomLengthRatio: Math.floor(main.amountOfRandomPoints/10),
 
 	crossoverParents: function(parent1, parent2) {
 		
@@ -365,6 +389,8 @@ main.genetics.variedGenomeLength = {
 		//we can keep going through the genome length simultaneously
 		//but we can stop checking one of the parents when one
 		//reaches/surpasses its genome length
+
+
 		for (var i = 0; i < longestGenomeLengthOfParents; i++) {
 			var parentOneIndex = parent1.genome[i],
 				parentTwoIndex = parent2.genome[i];
@@ -378,8 +404,10 @@ main.genetics.variedGenomeLength = {
 				parentOneIndex_in_parentTwoGenome = indexOfCoords(parent2.genome, parentOneIndex);
 				parentOneIndex_in_unusedGeneArray = indexOfCoords(unusedGenes, parentOneIndex);
 
-				if(parentOneIndex_in_parentTwoGenome != -1)
+				if(parentOneIndex_in_parentTwoGenome != -1){
 					commonGenes.push(parentOneIndex);
+					console.log(commonGenes);
+				}
 				else
 					uncommonGenes.push(parentOneIndex);
 
@@ -399,6 +427,18 @@ main.genetics.variedGenomeLength = {
 		}
 
 
+		console.log("===========================================");
+
+		console.log(parent1);
+		console.log(parent2);
+
+		console.log(commonGenes);
+		console.log(uncommonGenes);
+		console.log(uncommonGenes[0]);
+		console.log(uncommonGenes[1]);
+		console.log(unusedGenes);
+		console.log("===========================================");
+
 		/*
 		TODO: GENOMELENGTH WILL BE CHANGED AFTER THE CREATIONG OF RANDOM DISUNIFORM DISTRIBUTION IS FINISHED
 		*/
@@ -411,7 +451,7 @@ main.genetics.variedGenomeLength = {
 			fittestIndividual = parent2;
 
 		var randomGenomeLength = this.getRandomGenomeLength(fittestIndividual);
-
+		
 		//creation of childGenome	
 		for (var j = 0; j < randomGenomeLength; j++) {
 
@@ -419,10 +459,12 @@ main.genetics.variedGenomeLength = {
 
 			if (useCommonGenes) {
 				var randomIndex = Math.floor(Math.random() * (commonGenes.length));
-
+				
 				childGenome.push(commonGenes[randomIndex]);
 				commonGenes.splice(randomIndex, 1);
 
+					if(childGenome[childGenome.length-1] == undefined)
+						throw "undefined bruuhhh";
 				continue;
 			}
 
@@ -431,16 +473,33 @@ main.genetics.variedGenomeLength = {
 			
 			if (useUnusedGeneArrayForMutation) {
 				main.genetics.pushMutatedGene(true, unusedGenes, uncommonGenes, childGenome);
-				
+
+					if(childGenome[childGenome.length-1] == undefined)
+						throw "undefined bruuhhh";				
 				continue;
 
 			} else {
 
 				//if uncommongenes is empty, push random index commongene index
 				if (uncommonGenes.length === 0) {
+
+					if(commonGenes.length === 0) {
+						main.genetics.pushMutatedGene(true, unusedGenes, uncommonGenes, childGenome);
+						
+						continue;		
+					}
+
 					var randomIndex = Math.floor(Math.random() * (commonGenes.length));
 
 					childGenome.push(commonGenes[randomIndex]);
+
+					if(childGenome[childGenome.length-1] == undefined) {
+						console.log("ERROROROOROROOROROOROR");
+						console.log(uncommonGenes);
+						console.log(commonGenes);
+						console.log(unusedGenes);
+					}
+
 					commonGenes.splice(randomIndex, 1);
 
 					continue;
@@ -461,8 +520,10 @@ main.genetics.variedGenomeLength = {
 	},
 
 	getIndividualFitness: function(connections, distance) {
-		//fitness = C/D + m(c-1)
-		return (connections/distance) + (this.multiplier * (connections - 1));
+		//Individual fitness = (connections/distance) + m(c-1) + m_2(d-k)
+		//where k is max distance
+		return (connections/distance) + (this.multiplier * (connections - 1)) - 0.1*(distance-main.genetics.maxDistance);
+
 	},
 
 	getRandomGenomeLength: function(fittestIndividual) {
