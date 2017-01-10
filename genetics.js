@@ -484,8 +484,7 @@ main.genetics.variedGenomeLength = {
 				if (uncommonGenes.length === 0) {
 
 					if(commonGenes.length === 0) {
-						main.genetics.pushMutatedGene(true, unusedGenes, uncommonGenes, childGenome);
-						
+						main.genetics.pushMutatedGene(true, unusedGenes, uncommonGenes, childGenome);						
 						continue;		
 					}
 
@@ -493,12 +492,7 @@ main.genetics.variedGenomeLength = {
 
 					childGenome.push(commonGenes[randomIndex]);
 
-					if(childGenome[childGenome.length-1] == undefined) {
-						console.log("ERROROROOROROOROROOROR");
-						console.log(uncommonGenes);
-						console.log(commonGenes);
-						console.log(unusedGenes);
-					}
+					
 
 					commonGenes.splice(randomIndex, 1);
 
