@@ -138,7 +138,7 @@ p = r, if g = 1.
 
 This was all done to better understand how to optimize the genetic algorithms.
 
-The surprising thing is that there are surprsingly not alot of configurations for genome-lengths, yet the program fails to find the best one.
+The surprising thing is that there are surprisingly not a lot of configurations for genome-lengths, yet the program fails to find the best one.
 
 
 12/3/16
@@ -192,7 +192,7 @@ where M is the multiplier to alleviate lower-tier bias.
 12/24/16
 
 When doing the crossover function with parents of unequal genome lengths, we can just
-use the earlier algorithm of setting up for crossoves with uncommon, common, and
+use the earlier algorithm of setting up for crossovers with uncommon, common, and
 unused genes. With this set up we can set the child's genome length and go on from
 there.
 
@@ -376,5 +376,10 @@ where k is max distance and m_2 is other multiplier.
 Maybe add free-space population in just c/d ratio
 problem. (w/ m(connections-1). Laterrr.
 
+1/10/16
 
+working on fine tuning fitness for individual
 
+1/11/16
+
+The choosing between subtracting and adding using only 50/50 chance is keeping the fitness at a local maximum, so continuously tampering with the individual fitness won't have any progress.

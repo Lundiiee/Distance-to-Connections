@@ -43,13 +43,13 @@ var main = {
 	maxX: null,
 	maxY: null,
 
-	printDistance: false,
+	printDistance: true,
 
 	canvasObject: document.getElementById("canvas"),
 	canvas: null,
 
 	//in case we have any other algorithms to solve CDP
-	enableGeneticOptimization: true,
+	enableGeneticOptimization: false,
 
 	//array for holding objects with color and array of points
 	//{ color:red, points: [1, 2, 3, ... ] }
@@ -167,9 +167,10 @@ var main = {
 		if(main.drawOnly != undefined) {
 
 			for(var j = 0; j < main.drawOnly.connections.length; j++) {
+		
 				canvas.beginPath();
 
-				canvas.strokeStyle = "red";
+				canvas.strokeStyle = main.drawOnly.color;
 
 				canvas.lineWidth = 5;
 			
