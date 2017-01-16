@@ -37,13 +37,13 @@ var main = {
 	canvasHeight: 1080,
 
 	randomPoints: [],
-	amountOfRandomPoints: 20,
+	amountOfRandomPoints: 100,
 
 	//max x and y for random point generation
 	maxX: null,
 	maxY: null,
 
-	printDistance: true,
+	printDistance: false,
 
 	canvasObject: document.getElementById("canvas"),
 	canvas: null,
