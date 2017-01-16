@@ -17,14 +17,14 @@ main.genetics = {
 	individuals: [],
 	fittestTierIndividuals: [],
 
-	populationLength: 10,
+	populationLength: 100,
 
 	generation: 0,
 
-	genomeLength: 2,
+	genomeLength: 10,
 
-	mutationProbability: 0.4,
-	useUnusedGeneProbability: 0.2, //probability
+	mutationProbability: 0.22,
+	useUnusedGeneProbability: 0.40, //probability
 
 	useTournamentSelection: true,
 
@@ -39,23 +39,25 @@ main.genetics = {
 		1: What solution has the most connections under a distance (Connections under D)
 	*/
 	ratioOrDistanceProblem: undefined,
-	maxDistance: 1000,
+	maxDistance: 4000,
 
 	//10:1 ratio for points length to random genome length
-	randomGenomeLengthMax: main.amountOfRandomPoints/3,
+	 randomGenomeLengthMax: Math.floor(main.amountOfRandomPoints/5),
+	//randomGenomeLengthMax: 1,
 
 	//I_f = c/d + m_1(c-1) + m_2(d-k), where k is max-distance
-	multiplier: 0.4,
-	multiplier2:0.3,
+	multiplier:0.6,
+	multiplier2:0.04,
 
 	//n = x/10 10:1
-	randomLengthRatio: Math.floor(main.amountOfRandomPoints/3),
+	randomLengthRatio: Math.floor(main.amountOfRandomPoints/10),
+	//randomLengthRatio: 4,
 
 	newGenerationAverages: {},
 	previousGenerationAverages: {},
 
 	initIndividuals: function() {
-
+		console.log("Init...");
 		if(this.ratioOrDistanceProblem == 1 && main.amountOfRandomPoints < 10)
 			throw Error("Amount of random points is less than 10. Random genome lengths are set to a 10:1 ratio! We can't have less than 10!");
 			
@@ -213,7 +215,8 @@ main.genetics = {
 		if(this.ratioOrDistanceProblem == 0)
 			genomeLength = main.genetics.genomeLength;
 		else if(this.ratioOrDistanceProblem == 1)
-			genomeLength = Math.floor(Math.random() * (main.genetics.randomGenomeLengthMax));
+			//genomeLength = Math.floor(Math.random() * (main.genetics.randomGenomeLengthMax));
+			genomeLength = 1;
 		else
 			throw Error("What is life. What is ratioOrDistanceProblem equal to.");
 
@@ -231,7 +234,11 @@ main.genetics = {
 
 			genome.push(main.randomPoints[randomIndex]);
 		}
+		if(genome.length == 0) {
 
+			throw "a";
+		}
+		
 		return genome;
 	},
 
@@ -245,7 +252,7 @@ main.genetics = {
 
 	createGeneration: function(whichProblem) {
 
-		if(whichProblem == null && this.ratioOrDistanceProblem == undefined)
+		if(whichProblem == null && this.ratioOrDistanceProblem === undefined)
 			throw Error("whichProblem has been left undefined! Fix it.");
 
 		if(whichProblem == null) whichProblem = this.ratioOrDistanceProblem;
@@ -256,7 +263,6 @@ main.genetics = {
 		if(this.individuals.length > 0 && !this.newGenerationAverages)
 			this.newGenerationAverages = main.genetics.getAverages(this.individuals, true, this.ratioOrDistanceProblem == 1, true);
 
-		
 		//can either by 0 or 1; ratio or distance problem
 		this.ratioOrDistanceProblem = whichProblem;
 
@@ -269,12 +275,17 @@ main.genetics = {
 		}
 
 		this.previousGenerationAverages = this.newGenerationAverages;
+		
+		var previousAvgLengthMinusMax = this.previousGenerationAverages.avgLength - this.maxDistance;
+
+		// this.multiplier = previousAvgLengthMinusMax;
+		// this.multiplier2 = previousAvgLengthMinusMax;
 
 		var newGeneration = [];
 		if (this.useTournamentSelection) {
 
 			//minus 1 from populationLength because we push fittestIndividual
-			for (var i = 0; i < main.genetics.populationLength; i++) {
+			for (var i = 0; i < main.genetics.populationLength-1; i++) {
 				var parent1 = this.tournamentSelection(this.individuals),
 					parent2 = this.tournamentSelection(this.individuals),
 					child = new Individual();
@@ -309,7 +320,7 @@ main.genetics = {
 
 		}
 
-		//newGeneration.push(this.getFittestIndividual(this.individuals));
+		newGeneration.push(this.getFittestIndividual(this.individuals));
 
 		//(population, getFitness, getLength, getDistance)
 		this.newGenerationAverages = main.genetics.getAverages(newGeneration, true, this.ratioOrDistanceProblem == 1, true);
@@ -358,8 +369,7 @@ main.genetics = {
 				bestIndividual = randomlySelected[j];
 		}
 
-		return individuals[Math.floor(Math.random() * individuals.length)];
-
+		return bestIndividual;
 	},
 
 	getAverages: function(population, getFitness, getLength, getDistance) {
@@ -387,7 +397,7 @@ main.genetics = {
 	}
 
 };
-
+var b = 15;
 //modified or new functions to handle different genome lengths
 main.genetics.variedGenomeLength = {
 
@@ -518,8 +528,17 @@ main.genetics.variedGenomeLength = {
 	getIndividualFitness: function(connections, distance) {
 		//Individual fitness = (connections/distance) + m(c-1) + m_2(d-k)
 		//where k is max distance
-		return (main.genetics.multiplier * (connections - 1)) - main.genetics.multiplier2*(distance-main.genetics.maxDistance);
+		var n = (main.genetics.maxDistance - distance)/connections;
+		// return (main.genetics.multiplier * (connections - 1)) - main.genetics.multiplier2*(distance-main.genetics.maxDistance);
+		//console.log(n);
+		return (n * (connections-b));// - main.genetics.multiplier2*(distance-main.genetics.maxDistance);
 
+		//return connections/(main.genetics.maxDistance - distance) - 0.01*(distance/connections);
+		//return (main.genetics.maxDistance - distance)/connections - ( distance/connections);
+		//return connections/distance+0.01*connections-0.1*(distance-main.genetics.maxDistance);
+
+		 //return connections/distance + 2*connections;
+		//return connections;
 	},
 
 	getRandomGenomeLength: function(fittestIndividual, averageLength, averageFitness) {
@@ -543,12 +562,17 @@ main.genetics.variedGenomeLength = {
 
 		// var sign = Math.random()< probability ? "add" : "subtract";
 
+		var changeLengthProbability = Math.random() < 0.1;
+
+		if(!changeLengthProbability)
+			return fittestIndividual.genome.length;
+
 		var fittestGenomeLength = fittestIndividual.genome.length,
 			sign = undefined;
 
 		if(averageLength - fittestGenomeLength < 1) {
 	
-			var probability = Math.abs((averageLength - fittestGenomeLength)/(averageLength-fittestGenomeLength));
+			var probability = Math.abs((averageLength - fittestGenomeLength)/(main.amountOfRandomPoints - averageLength));
 			sign = Math.random() < probability ? "subtract" : "add";
 		
 		} else if(averageLength - fittestGenomeLength >= 1) {
@@ -609,4 +633,3 @@ disuniformDistribution.prototype.initializeArray = function() {
 		}
 	}
 };
-

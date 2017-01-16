@@ -49,7 +49,7 @@ var main = {
 	canvas: null,
 
 	//in case we have any other algorithms to solve CDP
-	enableGeneticOptimization: false,
+	enableGeneticOptimization: true,
 
 	//array for holding objects with color and array of points
 	//{ color:red, points: [1, 2, 3, ... ] }

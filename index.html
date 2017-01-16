@@ -7,7 +7,7 @@
 	
 	main.init(1);
 
-	main.genetics.ratioOrDistanceProblem = 1;
+	//main.genetics.ratioOrDistanceProblem = 1;
 
 	console.log("Population Size: " + main.genetics.populationLength);
 
@@ -31,39 +31,39 @@
 		main.renderConnections(main.canvas);
 	}
 
-	//distance, genome, fitness
-	var b = new Individual();
+	// //distance, genome, fitness
+	// var b = new Individual();
 
-	b.genome = main.genetics.createRandomGenome();
-	b.distance = main.calculateSumOfDistances(b.genome);
-	b.fitness = main.genetics.variedGenomeLength.getIndividualFitness(b.genome.length, b.distance);
+	// b.genome = main.genetics.createRandomGenome();
+	// b.distance = main.calculateSumOfDistances(b.genome);
+	// b.fitness = main.genetics.variedGenomeLength.getIndividualFitness(b.genome.length, b.distance);
 
-	var c = new Individual();
+	// var c = new Individual();
 
-	c.genome = main.genetics.createRandomGenome();
-	c.distance = main.calculateSumOfDistances(c.genome);
-	c.fitness = main.genetics.variedGenomeLength.getIndividualFitness(c.genome.length, c.distance);
+	// c.genome = main.genetics.createRandomGenome();
+	// c.distance = main.calculateSumOfDistances(c.genome);
+	// c.fitness = main.genetics.variedGenomeLength.getIndividualFitness(c.genome.length, c.distance);
 
 	
-	var a = []
-	a.push(b);
-	a.push(c);
+	// var a = []
+	// a.push(b);
+	// a.push(c);
 
-	function s(m, m2, a) {
+	// function s(m, m2, a) {
 
-		if(m && m2) {
-			main.genetics.multiplier = m;
-			main.genetics.multiplier = m2;			
+	// 	if(m && m2) {
+	// 		main.genetics.multiplier = m;
+	// 		main.genetics.multiplier = m2;			
 			
-		}
+	// 	}
 
-		a.forEach(function(i) {
-			i.fitness = main.genetics.variedGenomeLength.getIndividualFitness(i.genome.length, i.distance);
-			console.log(i);
-		});
-	}
+	// 	a.forEach(function(i) {
+	// 		i.fitness = main.genetics.variedGenomeLength.getIndividualFitness(i.genome.length, i.distance);
+	// 		console.log(i);
+	// 	});
+	// }
 
-	main.genetics.createGeneration();
+	// main.genetics.createGeneration();
 </script>
 
 <script type='text/javascript'>
